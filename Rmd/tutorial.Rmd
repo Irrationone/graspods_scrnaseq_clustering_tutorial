@@ -16,8 +16,7 @@ mdTOC <- grepl("markdown", knitr::opts_knit$get("rmarkdown.pandoc.to") )
 ```
 
 ```{r, engine='bash', results='asis',echo=FALSE, eval=mdTOC}
-## NOTE: change this to eval=FALSE if pandoc is not installed
-## You will not be able to render a table of contents in the .md file, though. 
+## NOTE: change this chunk to eval=FALSE if pandoc is not installed
 
 pandoc --template=toc-template.txt --toc -t html tutorial.md --highlight-style tango |\
 pandoc -t markdown -f html

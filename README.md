@@ -21,10 +21,12 @@ To render the document:
 
 * Clone the repository, i.e. `git clone https://github.com/Irrationone/graspods_scrnaseq_clustering_tutorial.git`
 * Navigate to the cloned repository in RStudio
-* Make sure you have the `rmarkdown` R package installed
+* Make sure you have the `rmarkdown` and `formatR` R packages installed (if you've rendered Rmd files before you have these)
 * Open the report file, and set the `Rmd` directory to your working directory
 * Run the chunks under **Setup** to install any packages you might be missing
 * Render the report with `rmarkdown::render("tutorial.Rmd", "all")`. This will run through 2 rendering steps to generate a table of contents within the markdown file. 
+
+If you're reading this before the tutorial, please install the packages first -- if you're working from a completely clean R install this can take a few minutes. 
 
 Please create an issue in this repository (or email `alzhang` at `bcgsc.ca`) if you have any questions/comments. 
 
