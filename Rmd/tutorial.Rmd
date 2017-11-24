@@ -1,5 +1,6 @@
 ---
 title: "Dimensionality reduction, differential expression analysis using single-cell RNA-seq data"
+author: "Allen Zhang"
 output: 
   html_notebook:
     toc: true
@@ -7,6 +8,7 @@ output:
     toc_float: true
   md_document:
     variant: markdown_github
+bibliography: references.bib
 ---
 
 ```{r mdTOC, echo=FALSE}
@@ -23,7 +25,7 @@ pandoc -t markdown -f html
 
 # Introduction
 
-The purpose of the tutorial is to provide an introduction to dimensionality reduction, visualization, basic clustering and differential expression methods applicable to single-cell RNA-seq (scRNA-seq) data. We'll be using a public set of single-cell RNA-seq data provided by 10X genomics (REF). 
+The purpose of the tutorial is to provide an introduction to dimensionality reduction, visualization, basic clustering and differential expression methods applicable to single-cell RNA-seq (scRNA-seq) data. We'll be using a public set of single-cell RNA-seq data provided by 10X genomics [@Genomics]. 
 
 For the most part, the methods described in this tutorial can also be used in the context of RNA-seq analysis for bulk samples. Certain code chunks are optimized for speed to handle the high volume of data from scRNA-seq. 
 
@@ -229,7 +231,7 @@ With some knowledge of the genes expressed by each cell type relative to other P
 
 ### Methods for single-cell analysis
 
-Surprisingly (or perhaps not), most DE methods designed for single-cell RNA-seq data actually perform more poorly than those for bulk data (or even simple pairwise Wilcoxon tests!) in the most comprehensive comparison of scRNA-seq DE methods to date I know of (https://www.biorxiv.org/content/biorxiv/early/2017/05/28/143289.full.pdf). 
+Surprisingly (or perhaps not), most DE methods designed for single-cell RNA-seq data actually perform more poorly than those for bulk data (or even simple pairwise Wilcoxon tests!) in the most comprehensive comparison of scRNA-seq DE methods to date I know of [@Soneson2017]. 
 
 One of the DE methods that did very well was edgeR's likelihood ratio test, which we'll use for the following analysis. 
 
@@ -283,14 +285,22 @@ c1_c2_genes <- edgeR::topTags(results, adjust.method = "BH", n = Inf, sort.by = 
 head(c1_c2_genes$table %>% subset(logFC < 0), 20)
 ```
 
+* CD79a/CD79b: components of the B-cell receptor (BCR) expressed on B cells
+* MS4A1: encodes CD20. Expressed on most B cells (not plasma cells)
+* HLA-D..: Major histocompatibility complex class II molecules expressed by professional antigen presenting cells (including B cells)
+
 ### Genes overexpressed in cluster 1 relative to 2
 
 ```{r}
 head(c1_c2_genes$table %>% subset(logFC > 0), 20)
 ```
 
+* IL32: Expressed after T cell or NK cell activation
+* GZMA: Marker of cytotoxic T cells and NK cells
+* FYB: Involved in signalling cascades in T cells (http://www.genecards.org/cgi-bin/carddisp.pl?gene=FYB1)
+* CCL5: Also known as RANTES (regulated on activation, normal T cell expressed and secreted)
 
-*Note:* When working with single-cell RNA-seq data, eliminating lowly expressed genes prior to doing DE analysis can be a good idea. 
+*Note:* When working with single-cell RNA-seq data, eliminating lowly expressed genes prior to doing DE analysis can be a good idea. Also, we could have done gene set enrichment analysis, etc. 
 
 ## Comparison to Seurat-annotated clusters
 
@@ -303,6 +313,12 @@ with(tsne_df, table(annotated_celltype, cluster))
 ```
 
 
-# References
+## Session info
+
+```{r}
+sessionInfo()
+```
+
+## References
 
 

@@ -1,6 +1,7 @@
 Table of Contents
 -----------------
 
+-   [Table of Contents](#table-of-contents)
 -   [Introduction](#introduction)
 -   [Setup](#setup)
 -   [Data](#data)
@@ -16,12 +17,13 @@ Table of Contents
         -   [Genes underexpressed in cluster 1 relative to 2](#genes-underexpressed-in-cluster-1-relative-to-2)
         -   [Genes overexpressed in cluster 1 relative to 2](#genes-overexpressed-in-cluster-1-relative-to-2)
     -   [Comparison to Seurat-annotated clusters](#comparison-to-seurat-annotated-clusters)
--   [References](#references)
+    -   [Session info](#session-info)
+    -   [References](#references)
 
 Introduction
 ============
 
-The purpose of the tutorial is to provide an introduction to dimensionality reduction, visualization, basic clustering and differential expression methods applicable to single-cell RNA-seq (scRNA-seq) data. We'll be using a public set of single-cell RNA-seq data provided by 10X genomics (REF).
+The purpose of the tutorial is to provide an introduction to dimensionality reduction, visualization, basic clustering and differential expression methods applicable to single-cell RNA-seq (scRNA-seq) data. We'll be using a public set of single-cell RNA-seq data provided by 10X genomics (10xGenomics 2017).
 
 For the most part, the methods described in this tutorial can also be used in the context of RNA-seq analysis for bulk samples. Certain code chunks are optimized for speed to handle the high volume of data from scRNA-seq.
 
@@ -255,7 +257,7 @@ With some knowledge of the genes expressed by each cell type relative to other P
 
 ### Methods for single-cell analysis
 
-Surprisingly (or perhaps not), most DE methods designed for single-cell RNA-seq data actually perform more poorly than those for bulk data (or even simple pairwise Wilcoxon tests!) in the most comprehensive comparison of scRNA-seq DE methods to date I know of (<https://www.biorxiv.org/content/biorxiv/early/2017/05/28/143289.full.pdf>).
+Surprisingly (or perhaps not), most DE methods designed for single-cell RNA-seq data actually perform more poorly than those for bulk data (or even simple pairwise Wilcoxon tests!) in the most comprehensive comparison of scRNA-seq DE methods to date I know of (Soneson and Robinson 2017).
 
 One of the DE methods that did very well was edgeR's likelihood ratio test, which we'll use for the following analysis.
 
@@ -330,6 +332,10 @@ head(c1_c2_genes$table %>% subset(logFC < 0), 20)
     ## HLA-DOB   -1.933692 13.00114  337.6400  2.083744e-75  1.823772e-73
     ## CD72      -1.894505 13.00289  293.5353  8.438268e-66  6.743277e-64
 
+-   CD79a/CD79b: components of the B-cell receptor (BCR) expressed on B cells
+-   MS4A1: encodes CD20. Expressed on most B cells (not plasma cells)
+-   HLA-D..: Major histocompatibility complex class II molecules expressed by professional antigen presenting cells (including B cells)
+
 ### Genes overexpressed in cluster 1 relative to 2
 
 ``` r
@@ -358,7 +364,12 @@ head(c1_c2_genes$table %>% subset(logFC > 0), 20)
     ## ZAP70   1.208703 13.08357  74.49937  6.065752e-18  1.506602e-16
     ## LDLRAP1 1.277641 13.07270  74.10517  7.406419e-18  1.815066e-16
 
-*Note:* When working with single-cell RNA-seq data, eliminating lowly expressed genes prior to doing DE analysis can be a good idea.
+-   IL32: Expressed after T cell or NK cell activation
+-   GZMA: Marker of cytotoxic T cells and NK cells
+-   FYB: Involved in signalling cascades in T cells (<http://www.genecards.org/cgi-bin/carddisp.pl?gene=FYB1>)
+-   CCL5: Also known as RANTES (regulated on activation, normal T cell expressed and secreted)
+
+*Note:* When working with single-cell RNA-seq data, eliminating lowly expressed genes prior to doing DE analysis can be a good idea. Also, we could have done gene set enrichment analysis, etc.
 
 Comparison to Seurat-annotated clusters
 ---------------------------------------
@@ -382,5 +393,114 @@ with(tsne_df, table(annotated_celltype, cluster))
     ##   Megakaryocytes       1    0   13    0    1
     ##   NK cells             2    0    0  153    0
 
+Session info
+------------
+
+``` r
+sessionInfo()
+```
+
+    ## R version 3.3.2 (2016-10-31)
+    ## Platform: x86_64-apple-darwin13.4.0 (64-bit)
+    ## Running under: OS X El Capitan 10.11.5
+    ## 
+    ## locale:
+    ## [1] en_CA.UTF-8/en_CA.UTF-8/en_CA.UTF-8/C/en_CA.UTF-8/en_CA.UTF-8
+    ## 
+    ## attached base packages:
+    ## [1] parallel  stats     graphics  grDevices utils     datasets  methods  
+    ## [8] base     
+    ## 
+    ## other attached packages:
+    ##  [1] statmod_1.4.30      edgeR_3.14.0        limma_3.28.21      
+    ##  [4] cluster_2.0.5       SC3_1.1.4           Rtsne_0.11         
+    ##  [7] Seurat_2.0.1        Biobase_2.32.0      BiocGenerics_0.18.0
+    ## [10] Matrix_1.2-7.1      cowplot_0.8.0       forcats_0.2.0      
+    ## [13] stringr_1.2.0       dplyr_0.7.4         purrr_0.2.4        
+    ## [16] readr_1.1.1         tidyr_0.7.2         tibble_1.3.4       
+    ## [19] ggplot2_2.2.1       tidyverse_1.2.1     pacman_0.4.6       
+    ## [22] setwidth_1.0-4     
+    ## 
+    ## loaded via a namespace (and not attached):
+    ##   [1] R.utils_2.3.0           lme4_1.1-13            
+    ##   [3] htmlwidgets_0.8         grid_3.3.2             
+    ##   [5] trimcluster_0.1-2       ranger_0.8.0           
+    ##   [7] munsell_0.4.3           codetools_0.2-15       
+    ##   [9] ica_1.0-1               colorspace_1.3-2       
+    ##  [11] knitr_1.16              rstudioapi_0.7         
+    ##  [13] stats4_3.3.2            ROCR_1.0-7             
+    ##  [15] robustbase_0.92-7       dtw_1.18-1             
+    ##  [17] NMF_0.20.6              labeling_0.3           
+    ##  [19] lars_1.2                mnormt_1.5-5           
+    ##  [21] pheatmap_1.0.8          rprojroot_1.2          
+    ##  [23] RSelenium_1.7.1         wdman_0.2.2            
+    ##  [25] diptest_0.75-7          R6_2.2.1               
+    ##  [27] doParallel_1.0.10       VGAM_1.0-3             
+    ##  [29] locfit_1.5-9.1          flexmix_2.3-14         
+    ##  [31] bitops_1.0-6            assertthat_0.2.0       
+    ##  [33] SDMTools_1.1-221        scales_0.4.1           
+    ##  [35] nnet_7.3-12             ggjoy_0.4.0            
+    ##  [37] gtable_0.2.0            rlang_0.1.4            
+    ##  [39] MatrixModels_0.4-1      scatterplot3d_0.3-40   
+    ##  [41] splines_3.3.2           lazyeval_0.2.0         
+    ##  [43] ModelMetrics_1.1.0      acepack_1.3-3.3        
+    ##  [45] broom_0.4.2             checkmate_1.8.2        
+    ##  [47] yaml_2.1.14             reshape2_1.4.2         
+    ##  [49] semver_0.2.0            modelr_0.1.1           
+    ##  [51] backports_1.0.5         httpuv_1.3.3           
+    ##  [53] Hmisc_4.0-3             caret_6.0-76           
+    ##  [55] tools_3.3.2             psych_1.6.12           
+    ##  [57] gridBase_0.4-7          gplots_3.0.1           
+    ##  [59] RColorBrewer_1.1-2      proxy_0.4-17           
+    ##  [61] ggridges_0.4.1          Rcpp_0.12.13           
+    ##  [63] plyr_1.8.4              base64enc_0.1-3        
+    ##  [65] rpart_4.1-10            openssl_0.9.6          
+    ##  [67] pbapply_1.3-3           haven_1.1.0            
+    ##  [69] magrittr_1.5            data.table_1.10.4      
+    ##  [71] SparseM_1.77            mvtnorm_1.0-6          
+    ##  [73] ithi.figures_0.0.0.9000 hms_0.3                
+    ##  [75] mime_0.5                evaluate_0.10          
+    ##  [77] xtable_1.8-2            pbkrtest_0.4-7         
+    ##  [79] XML_3.98-1.7            mclust_5.3             
+    ##  [81] ithi.expr_0.0.0.9000    readxl_1.0.0           
+    ##  [83] gridExtra_2.2.1         KernSmooth_2.23-15     
+    ##  [85] crayon_1.3.4            minqa_1.2.4            
+    ##  [87] R.oo_1.20.0             htmltools_0.3.6        
+    ##  [89] segmented_0.5-1.4       mgcv_1.8-15            
+    ##  [91] pcaPP_1.9-72            Formula_1.2-1          
+    ##  [93] rrcov_1.4-3             binman_0.1.0           
+    ##  [95] tclust_1.3-1            lubridate_1.7.1        
+    ##  [97] formatR_1.4             diffusionMap_1.1-0     
+    ##  [99] WriteXLS_4.0.0          MASS_7.3-45            
+    ## [101] fpc_2.1-10              car_2.1-4              
+    ## [103] cli_1.0.0               R.methodsS3_1.7.1      
+    ## [105] gdata_2.17.0            bindr_0.1              
+    ## [107] igraph_1.1.2            pkgconfig_2.0.1        
+    ## [109] sn_1.5-0                registry_0.3           
+    ## [111] numDeriv_2016.8-1       foreign_0.8-67         
+    ## [113] xml2_1.1.1              foreach_1.4.3          
+    ## [115] ithi.meta_0.0.0.9000    rngtools_1.2.4         
+    ## [117] pkgmaker_0.22           rvest_0.3.2            
+    ## [119] doRNG_1.6.6             digest_0.6.12          
+    ## [121] tsne_0.1-3              rmarkdown_1.4          
+    ## [123] cellranger_1.1.0        htmlTable_1.9          
+    ## [125] kernlab_0.9-25          shiny_0.13.2           
+    ## [127] gtools_3.5.0            quantreg_5.33          
+    ## [129] modeltools_0.2-21       nloptr_1.0.4           
+    ## [131] nlme_3.1-128            jsonlite_1.5           
+    ## [133] bindrcpp_0.2            lattice_0.20-34        
+    ## [135] httr_1.3.1              DEoptimR_1.0-8         
+    ## [137] survival_2.41-3         glue_1.2.0             
+    ## [139] FNN_1.1                 prabclus_2.2-6         
+    ## [141] iterators_1.0.8         class_7.3-14           
+    ## [143] stringi_1.1.5           mixtools_1.1.0         
+    ## [145] latticeExtra_0.6-28     caTools_1.17.1         
+    ## [147] irlba_2.3.1             e1071_1.6-7            
+    ## [149] ape_4.1
+
 References
-==========
+----------
+
+10xGenomics. 2017. “pbmc3k - Datasets - Single Cell Gene Expression - Official 10x Genomics Support.” Accessed November 24. <https://support.10xgenomics.com/single-cell-gene-expression/datasets/1.0.0/pbmc3k>.
+
+Soneson, Charlotte, and Mark D. Robinson. 2017. “Bias, Robustness and Scalability in Differential Expression Analysis of Single-Cell RNA-Seq Data.” *Doi.org*, May. Cold Spring Harbor Laboratory, 143289. doi:[10.1101/143289](https://doi.org/10.1101/143289).
