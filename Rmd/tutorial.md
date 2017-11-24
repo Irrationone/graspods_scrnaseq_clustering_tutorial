@@ -1,4 +1,22 @@
-pandoc: Could not find data file templates/toc-template.txt
+Table of Contents
+-----------------
+
+-   [Introduction](#introduction)
+-   [Setup](#setup)
+-   [Data](#data)
+-   [Analysis](#analysis)
+    -   [Dimensionality reduction](#dimensionality-reduction)
+        -   [Principal component analysis](#principal-component-analysis)
+        -   [t-distributed stochastic neighbour embedding (t-SNE)](#t-distributed-stochastic-neighbour-embedding-t-sne)
+    -   [Clustering](#clustering)
+        -   [k-medoids clustering](#k-medoids-clustering)
+    -   [Differential expression](#differential-expression)
+        -   [Methods for single-cell analysis](#methods-for-single-cell-analysis)
+        -   [Setting up an edgeR likelihood ratio test](#setting-up-an-edger-likelihood-ratio-test)
+        -   [Genes underexpressed in cluster 1 relative to 2](#genes-underexpressed-in-cluster-1-relative-to-2)
+        -   [Genes overexpressed in cluster 1 relative to 2](#genes-overexpressed-in-cluster-1-relative-to-2)
+    -   [Comparison to Seurat-annotated clusters](#comparison-to-seurat-annotated-clusters)
+-   [References](#references)
 
 Introduction
 ============
