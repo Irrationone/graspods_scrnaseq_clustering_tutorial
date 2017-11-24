@@ -8,7 +8,7 @@ For the most part, the methods described in this tutorial can also be used in th
 
 ### Contents
 
-* `data/pbmc3k_final.Rda`: R data object containing the PBMC expression matrix
+* `data/pbmc3k_final.Rda`: R data object containing the PBMC expression matrix (from Seurat)
 * `Rmd/tutorial.Rmd`: Rmarkdown file containing the tutorial
 
 ### Getting set up
