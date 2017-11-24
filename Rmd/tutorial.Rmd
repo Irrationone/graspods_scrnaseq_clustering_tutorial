@@ -1,0 +1,308 @@
+---
+title: "Dimensionality reduction, differential expression analysis using single-cell RNA-seq data"
+output: 
+  html_notebook:
+    toc: true
+    toc_depth: 5
+    toc_float: true
+  md_document:
+    variant: markdown_github
+---
+
+```{r mdTOC, echo=FALSE}
+mdTOC <- grepl("markdown", knitr::opts_knit$get("rmarkdown.pandoc.to") )
+```
+
+```{r, engine='bash', results='asis',echo=FALSE, eval=mdTOC}
+## NOTE: change this to eval=FALSE if pandoc is not installed
+## You will not be able to render a table of contents in the .md file, though. 
+
+pandoc --template=toc-template.txt --toc -t html homework.md --highlight-style tango |\
+pandoc -t markdown -f html
+```
+
+# Introduction
+
+The purpose of the tutorial is to provide an introduction to dimensionality reduction, visualization, basic clustering and differential expression methods applicable to single-cell RNA-seq (scRNA-seq) data. We'll be using a public set of single-cell RNA-seq data provided by 10X genomics (REF). 
+
+For the most part, the methods described in this tutorial can also be used in the context of RNA-seq analysis for bulk samples. Certain code chunks are optimized for speed to handle the high volume of data from scRNA-seq. 
+
+# Setup
+
+We'll begin by installing the required packages. If you have trouble installing any of these packages, make sure you update to the latest RStudio version (otherwise, if you haven't installed it before, `tidyverse` may throw errors). 
+
+```{r global_chunk_options, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, tidy = TRUE, warning = FALSE, message = FALSE, cache = FALSE)
+```
+
+```{r}
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(tidyverse, Seurat, stringr, Rtsne, cluster, limma, edgeR, statmod)
+```
+
+This should automatically install any packages you're missing (and just load them if you have them already). 
+
+Next, navigate to the directory containing `tutorial.Rmd` within RStudio and set that to your working directory. 
+
+# Data
+
+We're going to use the single-cell RNA-seq data for 2700 peripheral blood mononuclear cells (PBMCs) available from 10X genomics (provided by the R package Seurat). PBMCs include:
+
+* T cells
+* B cells
+* NK cells
+* monocytes 
+
+Load the data in as:
+
+```{r}
+load("../data/pbmc3k_final.Rda")
+```
+
+An object named `pbmc` should appear in the global environment. 
+
+```{r}
+class(pbmc)
+```
+
+The expression data has been pre-bundled into a Seurat object. We'll work with the individual components. 
+
+* `pbmc@raw.data` contains the transcript (technically, UMI) counts for each gene,cell pair
+* `pbmc@scale.data` contains the log-normalized and scaled version of the above
+
+If you've worked with bulk RNA-seq data before this should be fairly familiar -- just consider cells as samples. 
+
+Extract the raw and scaled matrices:
+
+```{r}
+data_matrix_raw <- as.matrix(pbmc@raw.data[pbmc@var.genes,colnames(data_matrix_scaled)])
+data_matrix_scaled <- pbmc@scale.data
+
+dim(data_matrix_raw)
+dim(data_matrix_scaled)
+```
+
+What we've done here is only look at the genes with variable expression levels, as these tend to be the most interesting for looking at differential expression. Prior to this filtering step, we had `r dim(pbmc@raw.data)[1]` genes. Seurat does this for us, so let's not worry about it. 
+
+Some cells are also removed as part of quality control for a variety of reasons (e.g. low total transcript count, high mitochondrial transcript expression) -- the ones kept are stored in `colnames(data_matrix_scaled)`. 
+
+Note that the expression matrix is sparse -- unlike in bulk gene expression data, where collections of cells are assessed, 0 transcripts are detected for a substantial portion of genes in most types of single cell data. 
+
+# Analysis
+
+## Dimensionality reduction
+
+The first thing we want to get an idea of is what the data look like. Since we're looking at PBMC, we might expect to have multiple clusters of cells with similar expression, i.e. a cluster for T cells, another for B cells ...
+
+It's usually prudent to re-scale the data prior to dimensionality reduction -- so we'll work with `data_matrix_scaled`. 
+
+### Principal component analysis
+
+#### Introduction
+
+The goal of PCA is to find a linear combination of mutually orthogonal "principal components" that approximate the original data as closely as possible. We can select the number of principal components we want -- more principal components = closer approximation to the data. 
+
+For our starting expression data for N cells x D genes, the maximum number of principal components we can select is `min(N,D)`. Let's say we want 20 PCs. Then PCA will give us 2 resulting matrices:
+
+* A N-by-20 matrix containing the *factor scores*: the values of each PC for each cell
+* A 20-by-D matrix containing the *loadings*: the linear transformation converting a vector of PC values to a vector of expression values for all D genes
+
+Which of these are we interested in visualizing? 
+
+#### Applying PCA
+
+With speed in mind, we'll use the `irlba` function, rather than `prcomp/princomp`, to compute the first 20 PCs. 
+
+```{r}
+components <- 20
+
+pca_results <- irlba::irlba(A = t(data_matrix_scaled), nv = components)
+```
+
+Our resulting matrices are:
+
+```{r}
+dim(pca_results$u)
+```
+
+```{r}
+dim(pca_results$v)
+```
+
+The variance of each component can be computed as:
+
+```{r}
+sdev <- pca_results$d ## singular values, related to eigenvalues, which are related to the variance of each component
+vars <- sdev^2/sqrt(max(1, ncol(data_matrix_scaled) - 1)) ## variances of each component
+frac_vars <- vars/sum(vars)
+```
+
+#### Visualization
+
+Recall that the factor scores give us the PC values for each cell. 
+
+```{r}
+factor_scores <- pca_results$u %*% diag(pca_results$d) %>% as.data.frame
+colnames(factor_scores) <- paste0("PC", 1:ncol(factor_scores))
+rownames(factor_scores) <- colnames(data_matrix_scaled)
+factor_scores <- factor_scores %>% tibble::rownames_to_column(var = "cell")
+
+p <- ggplot(factor_scores, aes(x=PC1, y=PC2)) + geom_point() + theme_bw() + xlab(paste0("PC1 (", round(frac_vars[1],3)*100, "%)")) + ylab(paste0("PC2 (", round(frac_vars[2],2)*100, "%)"))
+
+p
+```
+
+### t-distributed stochastic neighbour embedding (t-SNE)
+
+#### Introduction
+
+Like PCA, t-SNE is a method for dimensionality reduction. Unlike PCA, t-SNE can find a nonlinear mapping between the original data and the low-dimensional "components". 
+
+#### Applying t-SNE
+
+For the purposes of visualization we're only interested in 2 dimensions, so we'll do 2D t-SNE. This might take a minute or so to run. 
+
+```{r}
+dims <- 2
+```
+
+```{r, eval = FALSE}
+tsne_results <- Rtsne(X = t(data_matrix_scaled), dims = dims, initial_dims = 50)
+```
+
+To tractably do t-SNE, what's often done is that PCA is first applied -- and only the top X components (`initial_dims`) are kept. 
+
+If this takes too long to run or you're just impatient, load in the version I've already run, i.e.:
+
+```{r}
+tsne_results <- readRDS("../intermediates/tsne_results.rds")
+```
+
+#### Plotting
+
+```{r}
+tsne_df <- data.frame(tsne_results$Y)
+colnames(tsne_df) <- c("TSNE1", "TSNE2")
+tsne_df$cell <- colnames(data_matrix_scaled)
+```
+
+```{r}
+p <- ggplot(tsne_df, aes(x=TSNE1, y=TSNE2)) + geom_point() + theme_bw() + xlab("TSNE1") + ylab("TSNE2")
+
+p
+```
+
+Visually, we can identify approx. 3-5 clusters depending on how hard you squint. 
+
+## Clustering
+
+Although we can see structure from doing PCA/t-SNE, we still have to derive cluster assignments for each cell. 
+
+### k-medoids clustering
+
+For simplicity and speed we'll use a simple clustering method, k-medoids. Briefly, this takes the set of N cells and splits it into k clusters, minimizing the distance between 'cluster centers' and the points in each cluster. 
+
+We'll run this on the first 20 PCs. 
+
+```{r}
+pam_results <- pam(factor_scores, k = 5, metric = "euclidean", diss = FALSE)
+
+tsne_df$cluster <- pam_results$clustering
+```
+
+*Note:* Formally speaking we should have done this for many values of `k`, e.g. from 2-15 and selected `k` based on those results (e.g. see elbow method, silhouette method, ...). 
+
+```{r}
+p <- ggplot(tsne_df, aes(x=TSNE1, y=TSNE2)) + geom_point(aes(colour=factor(cluster))) + theme_bw() + xlab("TSNE1") + ylab("TSNE2") + guides(colour = guide_legend(title = "Cluster")) + scale_colour_brewer(palette = "Set2")
+
+p
+```
+
+Visually, this looks mostly good.
+
+## Differential expression
+
+Ok, we've got clusters now -- what do the cells in each cluster represent biologically? e.g. which clusters are T cells? 
+
+With some knowledge of the genes expressed by each cell type relative to other PBMC, we can identify these clusters by doing differential expression (DE) analysis. 
+
+### Methods for single-cell analysis
+
+Surprisingly (or perhaps not), most DE methods designed for single-cell RNA-seq data actually perform more poorly than those for bulk data (or even simple pairwise Wilcoxon tests!) in the most comprehensive comparison of scRNA-seq DE methods to date I know of (https://www.biorxiv.org/content/biorxiv/early/2017/05/28/143289.full.pdf). 
+
+One of the DE methods that did very well was edgeR's likelihood ratio test, which we'll use for the following analysis. 
+
+
+### Setting up an edgeR likelihood ratio test
+
+voom-limma was designed to operate on transcript counts, so we'll use the raw data stored in `data_matrix_raw`.
+
+First, we'll set up the design matrix, which is just a fancy way of saying sample annotations -- in this case, cell annotations. 
+
+```{r}
+cluster_label <- paste0("C", tsne_df$cluster)
+
+design <- model.matrix(~0 + cluster_label)
+colnames(design) <- paste0("C", 1:5)
+```
+
+These annotations are the clusters we produced above.
+
+Now we'll fit a glm in edgeR. Estimating dispersions might take a few minutes, so you'll probably want to skip that step. To do so, you can alternatively load the pre-computed version. 
+
+```{r, eval = FALSE}
+d <- DGEList(data_matrix_raw)
+d <- calcNormFactors(d)
+
+d <- estimateDisp(d, design)
+fit <- glmFit(d, design, robust = TRUE)
+```
+
+```{r}
+fit <- readRDS("../intermediates/edgeR_glmfit.rds")
+```
+
+Let's say we're interested in analyzing the differences between clusters 1 and 2. To do so, we use a contrast matrix to test the significance (non-zero) of `C1 - C2`:
+
+```{r}
+contrast.matrix <- limma::makeContrasts(C1 - C2, levels = design)
+colnames(contrast.matrix) <- c("C1C2")
+```
+
+Then, we perform the likelihood ratio test:
+
+```{r}
+results <- glmLRT(fit, coef = "C1 - C2", contrast = contrast.matrix)
+c1_c2_genes <- edgeR::topTags(results, adjust.method = "BH", n = Inf, sort.by = "PValue")
+```
+
+### Genes underexpressed in cluster 1 relative to 2
+
+```{r}
+head(c1_c2_genes$table %>% subset(logFC < 0), 20)
+```
+
+### Genes overexpressed in cluster 1 relative to 2
+
+```{r}
+head(c1_c2_genes$table %>% subset(logFC > 0), 20)
+```
+
+
+*Note:* When working with single-cell RNA-seq data, eliminating lowly expressed genes prior to doing DE analysis can be a good idea. 
+
+## Comparison to Seurat-annotated clusters
+
+How do these results compare to the "real" clusters? 
+
+```{r}
+tsne_df$annotated_celltype <- pbmc@meta.data[tsne_df$cell,]$ClusterNames_0.6
+
+with(tsne_df, table(annotated_celltype, cluster))
+```
+
+
+# References
+
+
