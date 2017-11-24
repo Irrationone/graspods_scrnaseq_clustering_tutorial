@@ -78,8 +78,8 @@ If you've worked with bulk RNA-seq data before this should be fairly familiar --
 Extract the raw and scaled matrices:
 
 ```{r}
-data_matrix_raw <- as.matrix(pbmc@raw.data[pbmc@var.genes,colnames(data_matrix_scaled)])
 data_matrix_scaled <- pbmc@scale.data
+data_matrix_raw <- as.matrix(pbmc@raw.data[pbmc@var.genes,colnames(data_matrix_scaled)])
 
 dim(data_matrix_raw)
 dim(data_matrix_scaled)
@@ -110,7 +110,9 @@ For our starting expression data for N cells x D genes, the maximum number of pr
 * A N-by-20 matrix containing the *factor scores*: the values of each PC for each cell
 * A 20-by-D matrix containing the *loadings*: the linear transformation converting a vector of PC values to a vector of expression values for all D genes
 
-Which of these are we interested in visualizing? 
+such that the product of these 2 matrices approximates the original expression matrix. 
+
+Which of these matrices would we likely be interested in visualizing? 
 
 #### Applying PCA
 

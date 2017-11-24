@@ -78,8 +78,8 @@ If you've worked with bulk RNA-seq data before this should be fairly familiar --
 Extract the raw and scaled matrices:
 
 ``` r
-data_matrix_raw <- as.matrix(pbmc@raw.data[pbmc@var.genes, colnames(data_matrix_scaled)])
 data_matrix_scaled <- pbmc@scale.data
+data_matrix_raw <- as.matrix(pbmc@raw.data[pbmc@var.genes, colnames(data_matrix_scaled)])
 
 dim(data_matrix_raw)
 ```
@@ -119,7 +119,9 @@ For our starting expression data for N cells x D genes, the maximum number of pr
 -   A N-by-20 matrix containing the *factor scores*: the values of each PC for each cell
 -   A 20-by-D matrix containing the *loadings*: the linear transformation converting a vector of PC values to a vector of expression values for all D genes
 
-Which of these are we interested in visualizing?
+such that the product of these 2 matrices approximates the original expression matrix.
+
+Which of these matrices would we likely be interested in visualizing?
 
 #### Applying PCA
 
@@ -413,90 +415,58 @@ sessionInfo()
     ## 
     ## other attached packages:
     ##  [1] statmod_1.4.30      edgeR_3.14.0        limma_3.28.21      
-    ##  [4] cluster_2.0.5       SC3_1.1.4           Rtsne_0.11         
-    ##  [7] Seurat_2.0.1        Biobase_2.32.0      BiocGenerics_0.18.0
-    ## [10] Matrix_1.2-7.1      cowplot_0.8.0       forcats_0.2.0      
-    ## [13] stringr_1.2.0       dplyr_0.7.4         purrr_0.2.4        
-    ## [16] readr_1.1.1         tidyr_0.7.2         tibble_1.3.4       
-    ## [19] ggplot2_2.2.1       tidyverse_1.2.1     pacman_0.4.6       
-    ## [22] setwidth_1.0-4     
+    ##  [4] cluster_2.0.5       Rtsne_0.11          Seurat_2.0.1       
+    ##  [7] Biobase_2.32.0      BiocGenerics_0.18.0 Matrix_1.2-7.1     
+    ## [10] cowplot_0.8.0       forcats_0.2.0       stringr_1.2.0      
+    ## [13] dplyr_0.7.4         purrr_0.2.4         readr_1.1.1        
+    ## [16] tidyr_0.7.2         tibble_1.3.4        ggplot2_2.2.1      
+    ## [19] tidyverse_1.2.1     pacman_0.4.6        setwidth_1.0-4     
     ## 
     ## loaded via a namespace (and not attached):
-    ##   [1] R.utils_2.3.0           lme4_1.1-13            
-    ##   [3] htmlwidgets_0.8         grid_3.3.2             
-    ##   [5] trimcluster_0.1-2       ranger_0.8.0           
-    ##   [7] munsell_0.4.3           codetools_0.2-15       
-    ##   [9] ica_1.0-1               colorspace_1.3-2       
-    ##  [11] knitr_1.16              rstudioapi_0.7         
-    ##  [13] stats4_3.3.2            ROCR_1.0-7             
-    ##  [15] robustbase_0.92-7       dtw_1.18-1             
-    ##  [17] NMF_0.20.6              labeling_0.3           
-    ##  [19] lars_1.2                mnormt_1.5-5           
-    ##  [21] pheatmap_1.0.8          rprojroot_1.2          
-    ##  [23] RSelenium_1.7.1         wdman_0.2.2            
-    ##  [25] diptest_0.75-7          R6_2.2.1               
-    ##  [27] doParallel_1.0.10       VGAM_1.0-3             
-    ##  [29] locfit_1.5-9.1          flexmix_2.3-14         
-    ##  [31] bitops_1.0-6            assertthat_0.2.0       
-    ##  [33] SDMTools_1.1-221        scales_0.4.1           
-    ##  [35] nnet_7.3-12             ggjoy_0.4.0            
-    ##  [37] gtable_0.2.0            rlang_0.1.4            
-    ##  [39] MatrixModels_0.4-1      scatterplot3d_0.3-40   
-    ##  [41] splines_3.3.2           lazyeval_0.2.0         
-    ##  [43] ModelMetrics_1.1.0      acepack_1.3-3.3        
-    ##  [45] broom_0.4.2             checkmate_1.8.2        
-    ##  [47] yaml_2.1.14             reshape2_1.4.2         
-    ##  [49] semver_0.2.0            modelr_0.1.1           
-    ##  [51] backports_1.0.5         httpuv_1.3.3           
-    ##  [53] Hmisc_4.0-3             caret_6.0-76           
-    ##  [55] tools_3.3.2             psych_1.6.12           
-    ##  [57] gridBase_0.4-7          gplots_3.0.1           
-    ##  [59] RColorBrewer_1.1-2      proxy_0.4-17           
-    ##  [61] ggridges_0.4.1          Rcpp_0.12.13           
-    ##  [63] plyr_1.8.4              base64enc_0.1-3        
-    ##  [65] rpart_4.1-10            openssl_0.9.6          
-    ##  [67] pbapply_1.3-3           haven_1.1.0            
-    ##  [69] magrittr_1.5            data.table_1.10.4      
-    ##  [71] SparseM_1.77            mvtnorm_1.0-6          
-    ##  [73] ithi.figures_0.0.0.9000 hms_0.3                
-    ##  [75] mime_0.5                evaluate_0.10          
-    ##  [77] xtable_1.8-2            pbkrtest_0.4-7         
-    ##  [79] XML_3.98-1.7            mclust_5.3             
-    ##  [81] ithi.expr_0.0.0.9000    readxl_1.0.0           
-    ##  [83] gridExtra_2.2.1         KernSmooth_2.23-15     
-    ##  [85] crayon_1.3.4            minqa_1.2.4            
-    ##  [87] R.oo_1.20.0             htmltools_0.3.6        
-    ##  [89] segmented_0.5-1.4       mgcv_1.8-15            
-    ##  [91] pcaPP_1.9-72            Formula_1.2-1          
-    ##  [93] rrcov_1.4-3             binman_0.1.0           
-    ##  [95] tclust_1.3-1            lubridate_1.7.1        
-    ##  [97] formatR_1.4             diffusionMap_1.1-0     
-    ##  [99] WriteXLS_4.0.0          MASS_7.3-45            
-    ## [101] fpc_2.1-10              car_2.1-4              
-    ## [103] cli_1.0.0               R.methodsS3_1.7.1      
-    ## [105] gdata_2.17.0            bindr_0.1              
-    ## [107] igraph_1.1.2            pkgconfig_2.0.1        
-    ## [109] sn_1.5-0                registry_0.3           
-    ## [111] numDeriv_2016.8-1       foreign_0.8-67         
-    ## [113] xml2_1.1.1              foreach_1.4.3          
-    ## [115] ithi.meta_0.0.0.9000    rngtools_1.2.4         
-    ## [117] pkgmaker_0.22           rvest_0.3.2            
-    ## [119] doRNG_1.6.6             digest_0.6.12          
-    ## [121] tsne_0.1-3              rmarkdown_1.4          
-    ## [123] cellranger_1.1.0        htmlTable_1.9          
-    ## [125] kernlab_0.9-25          shiny_0.13.2           
-    ## [127] gtools_3.5.0            quantreg_5.33          
-    ## [129] modeltools_0.2-21       nloptr_1.0.4           
-    ## [131] nlme_3.1-128            jsonlite_1.5           
-    ## [133] bindrcpp_0.2            lattice_0.20-34        
-    ## [135] httr_1.3.1              DEoptimR_1.0-8         
-    ## [137] survival_2.41-3         glue_1.2.0             
-    ## [139] FNN_1.1                 prabclus_2.2-6         
-    ## [141] iterators_1.0.8         class_7.3-14           
-    ## [143] stringi_1.1.5           mixtools_1.1.0         
-    ## [145] latticeExtra_0.6-28     caTools_1.17.1         
-    ## [147] irlba_2.3.1             e1071_1.6-7            
-    ## [149] ape_4.1
+    ##   [1] readxl_1.0.0         backports_1.0.5      Hmisc_4.0-3         
+    ##   [4] VGAM_1.0-3           NMF_0.20.6           sn_1.5-0            
+    ##   [7] plyr_1.8.4           igraph_1.1.2         lazyeval_0.2.0      
+    ##  [10] splines_3.3.2        gridBase_0.4-7       digest_0.6.12       
+    ##  [13] foreach_1.4.3        htmltools_0.3.6      lars_1.2            
+    ##  [16] gdata_2.17.0         magrittr_1.5         checkmate_1.8.2     
+    ##  [19] doParallel_1.0.10    mixtools_1.1.0       ROCR_1.0-7          
+    ##  [22] modelr_0.1.1         R.utils_2.3.0        colorspace_1.3-2    
+    ##  [25] rvest_0.3.2          haven_1.1.0          crayon_1.3.4        
+    ##  [28] jsonlite_1.5         lme4_1.1-13          bindr_0.1           
+    ##  [31] survival_2.41-3      iterators_1.0.8      ape_4.1             
+    ##  [34] glue_1.2.0           registry_0.3         gtable_0.2.0        
+    ##  [37] MatrixModels_0.4-1   car_2.1-4            kernlab_0.9-25      
+    ##  [40] prabclus_2.2-6       DEoptimR_1.0-8       SparseM_1.77        
+    ##  [43] scales_0.4.1         mvtnorm_1.0-6        rngtools_1.2.4      
+    ##  [46] Rcpp_0.12.13         dtw_1.18-1           xtable_1.8-2        
+    ##  [49] htmlTable_1.9        tclust_1.3-1         foreign_0.8-67      
+    ##  [52] proxy_0.4-17         mclust_5.3           SDMTools_1.1-221    
+    ##  [55] Formula_1.2-1        tsne_0.1-3           stats4_3.3.2        
+    ##  [58] htmlwidgets_0.8      httr_1.3.1           FNN_1.1             
+    ##  [61] gplots_3.0.1         RColorBrewer_1.1-2   fpc_2.1-10          
+    ##  [64] acepack_1.3-3.3      modeltools_0.2-21    ica_1.0-1           
+    ##  [67] pkgconfig_2.0.1      R.methodsS3_1.7.1    flexmix_2.3-14      
+    ##  [70] nnet_7.3-12          caret_6.0-76         labeling_0.3        
+    ##  [73] rlang_0.1.4          reshape2_1.4.2       munsell_0.4.3       
+    ##  [76] cellranger_1.1.0     tools_3.3.2          cli_1.0.0           
+    ##  [79] ranger_0.8.0         ggridges_0.4.1       broom_0.4.2         
+    ##  [82] evaluate_0.10        yaml_2.1.14          ModelMetrics_1.1.0  
+    ##  [85] knitr_1.16           robustbase_0.92-7    caTools_1.17.1      
+    ##  [88] bindrcpp_0.2         pbapply_1.3-3        nlme_3.1-128        
+    ##  [91] quantreg_5.33        formatR_1.4          R.oo_1.20.0         
+    ##  [94] xml2_1.1.1           pbkrtest_0.4-7       rstudioapi_0.7      
+    ##  [97] ggjoy_0.4.0          stringi_1.1.5        lattice_0.20-34     
+    ## [100] trimcluster_0.1-2    psych_1.6.12         nloptr_1.0.4        
+    ## [103] diffusionMap_1.1-0   irlba_2.3.1          data.table_1.10.4   
+    ## [106] bitops_1.0-6         R6_2.2.1             latticeExtra_0.6-28 
+    ## [109] KernSmooth_2.23-15   gridExtra_2.2.1      codetools_0.2-15    
+    ## [112] MASS_7.3-45          gtools_3.5.0         assertthat_0.2.0    
+    ## [115] pkgmaker_0.22        rprojroot_1.2        mnormt_1.5-5        
+    ## [118] diptest_0.75-7       mgcv_1.8-15          hms_0.3             
+    ## [121] grid_3.3.2           rpart_4.1-10         class_7.3-14        
+    ## [124] minqa_1.2.4          rmarkdown_1.4        segmented_0.5-1.4   
+    ## [127] numDeriv_2016.8-1    scatterplot3d_0.3-40 lubridate_1.7.1     
+    ## [130] base64enc_0.1-3
 
 References
 ----------
