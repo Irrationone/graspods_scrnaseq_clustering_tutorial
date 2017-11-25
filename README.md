@@ -1,5 +1,7 @@
 ## Dimensionality reduction, clustering, and differential expression with single-cell RNA-seq - GrasPods Tutorial
 
+**If you're reading this before the tutorial, please install the R package dependencies first -- if you're working from a completely clean R install this can take a few minutes.**
+
 ### Introduction
 
 The purpose of the tutorial is to provide an introduction to dimensionality reduction, visualization, basic clustering and differential expression methods applicable to single-cell RNA-seq (scRNA-seq) data. We'll be using a set of single-cell RNA-seq data for 2700 PBMCs freely available from 10X genomics (https://support.10xgenomics.com/single-cell-gene-expression/datasets/1.0.0/pbmc3k). 
@@ -25,8 +27,6 @@ To render the document:
 * Open the report file, and set the `Rmd` directory to your working directory
 * Run the chunks under **Setup** to install any packages you might be missing
 * Render the report with `rmarkdown::render("tutorial.Rmd", "all")`. This will run through 2 rendering steps to generate a table of contents within the markdown file. 
-
-If you're reading this before the tutorial, please install the packages first -- if you're working from a completely clean R install this can take a few minutes. 
 
 Please create an issue in this repository (or email `alzhang` at `bcgsc.ca`) if you have any questions/comments. 
 
