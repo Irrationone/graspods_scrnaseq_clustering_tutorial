@@ -1,3 +1,24 @@
+@article{Langfelder2008,
+abstract = {SUMMARY Hierarchical clustering is a widely used method for detecting clusters in genomic data. Clusters are defined by cutting branches off the dendrogram. A common but inflexible method uses a constant height cutoff value; this method exhibits suboptimal performance on complicated dendrograms. We present the Dynamic Tree Cut R package that implements novel dynamic branch cutting methods for detecting clusters in a dendrogram depending on their shape. Compared to the constant height cutoff method, our techniques offer the following advantages: (1) they are capable of identifying nested clusters; (2) they are flexible-cluster shape parameters can be tuned to suit the application at hand; (3) they are suitable for automation; and (4) they can optionally combine the advantages of hierarchical clustering and partitioning around medoids, giving better detection of outliers. We illustrate the use of these methods by applying them to protein-protein interaction network data and to a simulated gene expression data set. AVAILABILITY The Dynamic Tree Cut method is implemented in an R package available at http://www.genetics.ucla.edu/labs/horvath/CoexpressionNetwork/BranchCutting.},
+author = {Langfelder, Peter and Zhang, Bin and Horvath, Steve},
+doi = {10.1093/bioinformatics/btm563},
+issn = {1460-2059},
+journal = {Bioinformatics},
+month = {mar},
+number = {5},
+pages = {719--720},
+pmid = {18024473},
+title = {{Defining clusters from a hierarchical cluster tree: the Dynamic Tree Cut package for R}},
+url = {http://www.ncbi.nlm.nih.gov/pubmed/18024473 https://academic.oup.com/bioinformatics/article-lookup/doi/10.1093/bioinformatics/btm563},
+volume = {24},
+year = {2008}
+}
+@misc{Genomics,
+author = {10xGenomics},
+title = {{pbmc3k - Datasets - Single Cell Gene Expression - Official 10x Genomics Support}},
+url = {https://support.10xgenomics.com/single-cell-gene-expression/datasets/1.0.0/pbmc3k},
+urldate = {2017-11-24}
+}
 @article{Soneson2017,
 abstract = {Background: As single-cell RNA-seq (scRNA-seq) is becoming increasingly common, the amount of publicly available data grows rapidly, generating a useful resource for computational method development and extension of published results. Although processed data matrices are typically made available in public repositories, the procedure to obtain these varies widely between data sets, which may complicate reuse and cross-data set comparison. Moreover, while many statistical methods for performing differential expression analysis of scRNA-seq data are becoming available, their relative merits and the performance compared to methods developed for bulk RNA-seq data are not sufficiently well understood. Results: We present conquer, a collection of consistently processed, analysis-ready public single-cell RNA-seq data sets. Each data set has count and transcripts per million (TPM) estimates for genes and transcripts, as well as quality control and exploratory analysis reports. We use a subset of the data sets available in conquer to perform an extensive evaluation of the performance and characteristics of statistical methods for differential gene expression analysis, evaluating a total of 30 statistical approaches on both experimental and simulated scRNA-seq data. Conclusions: Considerable differences are found between the methods in terms of the number and characteristics of the genes that are called differentially expressed. Pre-filtering of lowly expressed genes can have important effects on the results, particularly for some of the methods originally developed for analysis of bulk RNA-seq data. Generally, however, methods developed for bulk RNA-seq analysis do not perform notably worse than those developed specifically for scRNA-seq.},
 author = {Soneson, Charlotte and Robinson, Mark D.},
@@ -9,10 +30,4 @@ publisher = {Cold Spring Harbor Laboratory},
 title = {{Bias, Robustness And Scalability In Differential Expression Analysis Of Single-Cell RNA-Seq Data}},
 url = {https://www.biorxiv.org/content/early/2017/05/28/143289.article-metrics},
 year = {2017}
-}
-@misc{Genomics,
-author = {10xGenomics},
-title = {{pbmc3k - Datasets - Single Cell Gene Expression - Official 10x Genomics Support}},
-url = {https://support.10xgenomics.com/single-cell-gene-expression/datasets/1.0.0/pbmc3k},
-urldate = {2017-11-24}
 }

@@ -234,7 +234,7 @@ One of the DE methods that did very well was edgeR's likelihood ratio test, whic
 
 ### Setting up an edgeR likelihood ratio test
 
-voom-limma was designed to operate on transcript counts, so we'll use the raw data stored in `data_matrix_raw`.
+To operate on transcript counts, we'll use the raw data stored in `data_matrix_raw`.
 
 First, we'll set up the design matrix, which is just a fancy way of saying sample annotations -- in this case, cell annotations. 
 
