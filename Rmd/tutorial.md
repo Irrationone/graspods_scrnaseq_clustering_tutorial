@@ -35,7 +35,7 @@ We'll begin by installing the required packages. If you have trouble installing 
 ``` r
 if (!require("pacman")) install.packages("pacman")
 
-pacman::p_load(tidyverse, Seurat, stringr, Rtsne, cluster, limma, edgeR, statmod)
+pacman::p_load(tidyverse, stringr, Rtsne, cluster, limma, edgeR, statmod)
 ```
 
 This should automatically install any packages you're missing (and just load them if you have them already).
@@ -55,36 +55,21 @@ We're going to use the single-cell RNA-seq data for 2700 peripheral blood mononu
 Load the data in as:
 
 ``` r
-load("../data/pbmc3k_final.Rda")
+load("../data/pbmc3k_seurat_extracted.rda")
 ```
 
-An object named `pbmc` should appear in the global environment.
-
-``` r
-class(pbmc)
-```
-
-    ## [1] "seurat"
-    ## attr(,"package")
-    ## [1] "Seurat"
-
-The expression data has been pre-bundled into a Seurat object. We'll work with the individual components.
-
--   `pbmc@raw.data` contains the transcript (technically, UMI) counts for each gene,cell pair
--   `pbmc@scale.data` contains the log-normalized and scaled version of the above
+-   `data_matrix_raw` contains the transcript (technically, UMI) counts for each gene,cell pair
+-   `data_matrix_scaled` contains the log-normalized and scaled version of the above
+-   `pbmc_metadata` contains metadata for each cell
+-   `variable_genes` contains a vector of genes that exhibit substantial expression variability across cells
 
 If you've worked with bulk RNA-seq data before this should be fairly familiar -- just consider cells as samples.
 
-Extract the raw and scaled matrices:
-
 ``` r
-data_matrix_scaled <- pbmc@scale.data
-data_matrix_raw <- as.matrix(pbmc@raw.data[pbmc@var.genes, colnames(data_matrix_scaled)])
-
 dim(data_matrix_raw)
 ```
 
-    ## [1] 1838 2638
+    ## [1] 13714  2700
 
 ``` r
 dim(data_matrix_scaled)
@@ -92,7 +77,13 @@ dim(data_matrix_scaled)
 
     ## [1] 1838 2638
 
-What we've done here is only look at the genes with variable expression levels, as these tend to be the most interesting for looking at differential expression. Prior to this filtering step, we had 13714 genes. Seurat does this for us, so let's not worry about it.
+After filtering for variable genes, and removing cells that failed QC:
+
+``` r
+data_matrix_raw <- as.matrix(data_matrix_raw[variable_genes, colnames(data_matrix_scaled)])
+```
+
+We're only looking at the genes with variable expression levels, as these tend to be the most interesting for looking at differential expression. This was done in Seurat -- we won't worry about it for now.
 
 Some cells are also removed as part of quality control for a variety of reasons (e.g. low total transcript count, high mitochondrial transcript expression) -- the ones kept are stored in `colnames(data_matrix_scaled)`.
 
@@ -379,7 +370,7 @@ Comparison to Seurat-annotated clusters
 How do these results compare to the "real" clusters?
 
 ``` r
-tsne_df$annotated_celltype <- pbmc@meta.data[tsne_df$cell, ]$ClusterNames_0.6
+tsne_df$annotated_celltype <- pbmc_metadata[tsne_df$cell, ]$ClusterNames_0.6
 
 with(tsne_df, table(annotated_celltype, cluster))
 ```
@@ -410,63 +401,34 @@ sessionInfo()
     ## [1] en_CA.UTF-8/en_CA.UTF-8/en_CA.UTF-8/C/en_CA.UTF-8/en_CA.UTF-8
     ## 
     ## attached base packages:
-    ## [1] parallel  stats     graphics  grDevices utils     datasets  methods  
-    ## [8] base     
+    ## [1] stats     graphics  grDevices utils     datasets  methods   base     
     ## 
     ## other attached packages:
-    ##  [1] statmod_1.4.30      edgeR_3.14.0        limma_3.28.21      
-    ##  [4] cluster_2.0.5       Rtsne_0.11          Seurat_2.0.1       
-    ##  [7] Biobase_2.32.0      BiocGenerics_0.18.0 Matrix_1.2-7.1     
-    ## [10] cowplot_0.8.0       forcats_0.2.0       stringr_1.2.0      
-    ## [13] dplyr_0.7.4         purrr_0.2.4         readr_1.1.1        
-    ## [16] tidyr_0.7.2         tibble_1.3.4        ggplot2_2.2.1      
-    ## [19] tidyverse_1.2.1     pacman_0.4.6        setwidth_1.0-4     
+    ##  [1] Matrix_1.2-7.1  statmod_1.4.30  edgeR_3.14.0    limma_3.28.21  
+    ##  [5] cluster_2.0.5   Rtsne_0.11      forcats_0.2.0   stringr_1.2.0  
+    ##  [9] dplyr_0.7.4     purrr_0.2.4     readr_1.1.1     tidyr_0.7.2    
+    ## [13] tibble_1.3.4    ggplot2_2.2.1   tidyverse_1.2.1 pacman_0.4.6   
+    ## [17] setwidth_1.0-4 
     ## 
     ## loaded via a namespace (and not attached):
-    ##   [1] readxl_1.0.0         backports_1.0.5      Hmisc_4.0-3         
-    ##   [4] VGAM_1.0-3           NMF_0.20.6           sn_1.5-0            
-    ##   [7] plyr_1.8.4           igraph_1.1.2         lazyeval_0.2.0      
-    ##  [10] splines_3.3.2        gridBase_0.4-7       digest_0.6.12       
-    ##  [13] foreach_1.4.3        htmltools_0.3.6      lars_1.2            
-    ##  [16] gdata_2.17.0         magrittr_1.5         checkmate_1.8.2     
-    ##  [19] doParallel_1.0.10    mixtools_1.1.0       ROCR_1.0-7          
-    ##  [22] modelr_0.1.1         R.utils_2.3.0        colorspace_1.3-2    
-    ##  [25] rvest_0.3.2          haven_1.1.0          crayon_1.3.4        
-    ##  [28] jsonlite_1.5         lme4_1.1-13          bindr_0.1           
-    ##  [31] survival_2.41-3      iterators_1.0.8      ape_4.1             
-    ##  [34] glue_1.2.0           registry_0.3         gtable_0.2.0        
-    ##  [37] MatrixModels_0.4-1   car_2.1-4            kernlab_0.9-25      
-    ##  [40] prabclus_2.2-6       DEoptimR_1.0-8       SparseM_1.77        
-    ##  [43] scales_0.4.1         mvtnorm_1.0-6        rngtools_1.2.4      
-    ##  [46] Rcpp_0.12.13         dtw_1.18-1           xtable_1.8-2        
-    ##  [49] htmlTable_1.9        tclust_1.3-1         foreign_0.8-67      
-    ##  [52] proxy_0.4-17         mclust_5.3           SDMTools_1.1-221    
-    ##  [55] Formula_1.2-1        tsne_0.1-3           stats4_3.3.2        
-    ##  [58] htmlwidgets_0.8      httr_1.3.1           FNN_1.1             
-    ##  [61] gplots_3.0.1         RColorBrewer_1.1-2   fpc_2.1-10          
-    ##  [64] acepack_1.3-3.3      modeltools_0.2-21    ica_1.0-1           
-    ##  [67] pkgconfig_2.0.1      R.methodsS3_1.7.1    flexmix_2.3-14      
-    ##  [70] nnet_7.3-12          caret_6.0-76         labeling_0.3        
-    ##  [73] rlang_0.1.4          reshape2_1.4.2       munsell_0.4.3       
-    ##  [76] cellranger_1.1.0     tools_3.3.2          cli_1.0.0           
-    ##  [79] ranger_0.8.0         ggridges_0.4.1       broom_0.4.2         
-    ##  [82] evaluate_0.10        yaml_2.1.14          ModelMetrics_1.1.0  
-    ##  [85] knitr_1.16           robustbase_0.92-7    caTools_1.17.1      
-    ##  [88] bindrcpp_0.2         pbapply_1.3-3        nlme_3.1-128        
-    ##  [91] quantreg_5.33        formatR_1.4          R.oo_1.20.0         
-    ##  [94] xml2_1.1.1           pbkrtest_0.4-7       rstudioapi_0.7      
-    ##  [97] ggjoy_0.4.0          stringi_1.1.5        lattice_0.20-34     
-    ## [100] trimcluster_0.1-2    psych_1.6.12         nloptr_1.0.4        
-    ## [103] diffusionMap_1.1-0   irlba_2.3.1          data.table_1.10.4   
-    ## [106] bitops_1.0-6         R6_2.2.1             latticeExtra_0.6-28 
-    ## [109] KernSmooth_2.23-15   gridExtra_2.2.1      codetools_0.2-15    
-    ## [112] MASS_7.3-45          gtools_3.5.0         assertthat_0.2.0    
-    ## [115] pkgmaker_0.22        rprojroot_1.2        mnormt_1.5-5        
-    ## [118] diptest_0.75-7       mgcv_1.8-15          hms_0.3             
-    ## [121] grid_3.3.2           rpart_4.1-10         class_7.3-14        
-    ## [124] minqa_1.2.4          rmarkdown_1.4        segmented_0.5-1.4   
-    ## [127] numDeriv_2016.8-1    scatterplot3d_0.3-40 lubridate_1.7.1     
-    ## [130] base64enc_0.1-3
+    ##  [1] reshape2_1.4.2     haven_1.1.0        lattice_0.20-34   
+    ##  [4] colorspace_1.3-2   htmltools_0.3.6    yaml_2.1.14       
+    ##  [7] base64enc_0.1-3    rlang_0.1.4        foreign_0.8-67    
+    ## [10] glue_1.2.0         RColorBrewer_1.1-2 modelr_0.1.1      
+    ## [13] readxl_1.0.0       bindrcpp_0.2       bindr_0.1         
+    ## [16] plyr_1.8.4         munsell_0.4.3      gtable_0.2.0      
+    ## [19] cellranger_1.1.0   rvest_0.3.2        psych_1.6.12      
+    ## [22] evaluate_0.10      labeling_0.3       knitr_1.16        
+    ## [25] irlba_2.3.1        parallel_3.3.2     broom_0.4.2       
+    ## [28] Rcpp_0.12.13       backports_1.0.5    scales_0.4.1      
+    ## [31] formatR_1.4        jsonlite_1.5       mnormt_1.5-5      
+    ## [34] hms_0.3            digest_0.6.12      stringi_1.1.5     
+    ## [37] grid_3.3.2         rprojroot_1.2      cli_1.0.0         
+    ## [40] tools_3.3.2        magrittr_1.5       lazyeval_0.2.0    
+    ## [43] crayon_1.3.4       pkgconfig_2.0.1    xml2_1.1.1        
+    ## [46] lubridate_1.7.1    assertthat_0.2.0   rmarkdown_1.8     
+    ## [49] httr_1.3.1         rstudioapi_0.7     R6_2.2.1          
+    ## [52] nlme_3.1-128
 
 References
 ----------

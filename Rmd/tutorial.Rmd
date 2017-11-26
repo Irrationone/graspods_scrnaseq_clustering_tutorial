@@ -39,7 +39,7 @@ knitr::opts_chunk$set(echo = TRUE, tidy = TRUE, warning = FALSE, message = FALSE
 ```{r}
 if (!require("pacman")) install.packages("pacman")
 
-pacman::p_load(tidyverse, Seurat, stringr, Rtsne, cluster, limma, edgeR, statmod)
+pacman::p_load(tidyverse, stringr, Rtsne, cluster, limma, edgeR, statmod)
 ```
 
 This should automatically install any packages you're missing (and just load them if you have them already). 
@@ -58,33 +58,28 @@ We're going to use the single-cell RNA-seq data for 2700 peripheral blood mononu
 Load the data in as:
 
 ```{r}
-load("../data/pbmc3k_final.Rda")
+load("../data/pbmc3k_seurat_extracted.rda")
 ```
 
-An object named `pbmc` should appear in the global environment. 
-
-```{r}
-class(pbmc)
-```
-
-The expression data has been pre-bundled into a Seurat object. We'll work with the individual components. 
-
-* `pbmc@raw.data` contains the transcript (technically, UMI) counts for each gene,cell pair
-* `pbmc@scale.data` contains the log-normalized and scaled version of the above
+* `data_matrix_raw` contains the transcript (technically, UMI) counts for each gene,cell pair
+* `data_matrix_scaled` contains the log-normalized and scaled version of the above
+* `pbmc_metadata` contains metadata for each cell
+* `variable_genes` contains a vector of genes that exhibit substantial expression variability across cells
 
 If you've worked with bulk RNA-seq data before this should be fairly familiar -- just consider cells as samples. 
 
-Extract the raw and scaled matrices:
-
 ```{r}
-data_matrix_scaled <- pbmc@scale.data
-data_matrix_raw <- as.matrix(pbmc@raw.data[pbmc@var.genes,colnames(data_matrix_scaled)])
-
 dim(data_matrix_raw)
 dim(data_matrix_scaled)
 ```
 
-What we've done here is only look at the genes with variable expression levels, as these tend to be the most interesting for looking at differential expression. Prior to this filtering step, we had `r dim(pbmc@raw.data)[1]` genes. Seurat does this for us, so let's not worry about it. 
+After filtering for variable genes, and removing cells that failed QC:
+
+```{r}
+data_matrix_raw <- as.matrix(data_matrix_raw[variable_genes,colnames(data_matrix_scaled)])
+```
+
+We're only looking at the genes with variable expression levels, as these tend to be the most interesting for looking at differential expression. This was done in Seurat -- we won't worry about it for now. 
 
 Some cells are also removed as part of quality control for a variety of reasons (e.g. low total transcript count, high mitochondrial transcript expression) -- the ones kept are stored in `colnames(data_matrix_scaled)`. 
 
@@ -308,7 +303,7 @@ head(c1_c2_genes$table %>% subset(logFC > 0), 20)
 How do these results compare to the "real" clusters? 
 
 ```{r}
-tsne_df$annotated_celltype <- pbmc@meta.data[tsne_df$cell,]$ClusterNames_0.6
+tsne_df$annotated_celltype <- pbmc_metadata[tsne_df$cell,]$ClusterNames_0.6
 
 with(tsne_df, table(annotated_celltype, cluster))
 ```
