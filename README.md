@@ -10,7 +10,7 @@ For the most part, the methods described in this tutorial can also be used in th
 
 ### Contents
 
-* `data/pbmc3k_final.Rda`: R data object containing the PBMC expression matrix (from Seurat)
+* `data/pbmc3k_seurat_extracted.rda`: R data object containing the PBMC expression matrix (pre-processed from Seurat)
 * `Rmd/tutorial.Rmd`: Rmarkdown file containing the tutorial
 
 ### Getting set up
