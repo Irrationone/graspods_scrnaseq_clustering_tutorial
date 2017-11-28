@@ -21,7 +21,7 @@ If you run into errors while installing packages, please make sure you have the 
 
 To render the document:
 
-* Clone the repository, i.e. `git clone https://github.com/Irrationone/graspods_scrnaseq_clustering_tutorial.git`
+* Clone the repository, i.e. `git clone https://github.com/Irrationone/graspods_scrnaseq_clustering_tutorial.git`or download a copy from under `Releases`
 * Navigate to the cloned repository in RStudio
 * Make sure you have the `rmarkdown` and `formatR` R packages installed (if you've rendered Rmd files before you have these)
 * Open the report file, and set the `Rmd` directory to your working directory
