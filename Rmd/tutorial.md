@@ -35,7 +35,8 @@ We'll begin by installing the required packages. If you have trouble installing 
 ``` r
 if (!require("pacman")) install.packages("pacman")
 
-pacman::p_load(tidyverse, stringr, Rtsne, cluster, limma, edgeR, statmod)
+pacman::p_load(tidyverse, stringr, Rtsne, cluster, limma, edgeR, statmod, formatR, 
+    irlba)
 ```
 
 This should automatically install any packages you're missing (and just load them if you have them already).
@@ -405,13 +406,14 @@ sessionInfo()
     ## [8] base     
     ## 
     ## other attached packages:
-    ##  [1] statmod_1.4.30      edgeR_3.14.0        limma_3.28.21      
-    ##  [4] cluster_2.0.5       Rtsne_0.11          Seurat_2.0.1       
-    ##  [7] Biobase_2.32.0      BiocGenerics_0.18.0 Matrix_1.2-7.1     
-    ## [10] cowplot_0.8.0       forcats_0.2.0       stringr_1.2.0      
-    ## [13] dplyr_0.7.4         purrr_0.2.4         readr_1.1.1        
-    ## [16] tidyr_0.7.2         tibble_1.3.4        ggplot2_2.2.1      
-    ## [19] tidyverse_1.2.1     pacman_0.4.6        setwidth_1.0-4     
+    ##  [1] irlba_2.3.1         formatR_1.4         statmod_1.4.30     
+    ##  [4] edgeR_3.14.0        limma_3.28.21       cluster_2.0.5      
+    ##  [7] Rtsne_0.11          Seurat_2.0.1        Biobase_2.32.0     
+    ## [10] BiocGenerics_0.18.0 Matrix_1.2-7.1      cowplot_0.8.0      
+    ## [13] forcats_0.2.0       stringr_1.2.0       dplyr_0.7.4        
+    ## [16] purrr_0.2.4         readr_1.1.1         tidyr_0.7.2        
+    ## [19] tibble_1.3.4        ggplot2_2.2.1       tidyverse_1.2.1    
+    ## [22] pacman_0.4.6        setwidth_1.0-4     
     ## 
     ## loaded via a namespace (and not attached):
     ##   [1] readxl_1.0.0         backports_1.0.5      Hmisc_4.0-3         
@@ -444,20 +446,19 @@ sessionInfo()
     ##  [82] evaluate_0.10        yaml_2.1.14          ModelMetrics_1.1.0  
     ##  [85] knitr_1.16           robustbase_0.92-7    caTools_1.17.1      
     ##  [88] bindrcpp_0.2         pbapply_1.3-3        nlme_3.1-128        
-    ##  [91] quantreg_5.33        formatR_1.4          R.oo_1.20.0         
-    ##  [94] xml2_1.1.1           pbkrtest_0.4-7       rstudioapi_0.7      
-    ##  [97] ggjoy_0.4.0          stringi_1.1.5        lattice_0.20-34     
-    ## [100] trimcluster_0.1-2    psych_1.6.12         nloptr_1.0.4        
-    ## [103] diffusionMap_1.1-0   data.table_1.10.4    bitops_1.0-6        
-    ## [106] irlba_2.3.1          R6_2.2.1             latticeExtra_0.6-28 
-    ## [109] KernSmooth_2.23-15   gridExtra_2.2.1      codetools_0.2-15    
-    ## [112] MASS_7.3-45          gtools_3.5.0         assertthat_0.2.0    
-    ## [115] pkgmaker_0.22        rprojroot_1.2        mnormt_1.5-5        
-    ## [118] diptest_0.75-7       mgcv_1.8-15          hms_0.3             
-    ## [121] grid_3.3.2           rpart_4.1-10         class_7.3-14        
-    ## [124] minqa_1.2.4          rmarkdown_1.8        segmented_0.5-1.4   
-    ## [127] numDeriv_2016.8-1    scatterplot3d_0.3-40 lubridate_1.7.1     
-    ## [130] base64enc_0.1-3
+    ##  [91] quantreg_5.33        R.oo_1.20.0          xml2_1.1.1          
+    ##  [94] pbkrtest_0.4-7       rstudioapi_0.7       ggjoy_0.4.0         
+    ##  [97] stringi_1.1.5        lattice_0.20-34      trimcluster_0.1-2   
+    ## [100] psych_1.6.12         nloptr_1.0.4         diffusionMap_1.1-0  
+    ## [103] data.table_1.10.4    bitops_1.0-6         R6_2.2.1            
+    ## [106] latticeExtra_0.6-28  KernSmooth_2.23-15   gridExtra_2.2.1     
+    ## [109] codetools_0.2-15     MASS_7.3-45          gtools_3.5.0        
+    ## [112] assertthat_0.2.0     pkgmaker_0.22        rprojroot_1.2       
+    ## [115] mnormt_1.5-5         diptest_0.75-7       mgcv_1.8-15         
+    ## [118] hms_0.3              grid_3.3.2           rpart_4.1-10        
+    ## [121] class_7.3-14         minqa_1.2.4          rmarkdown_1.8       
+    ## [124] segmented_0.5-1.4    numDeriv_2016.8-1    scatterplot3d_0.3-40
+    ## [127] lubridate_1.7.1      base64enc_0.1-3
 
 References
 ----------

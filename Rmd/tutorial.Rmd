@@ -39,7 +39,7 @@ knitr::opts_chunk$set(echo = TRUE, tidy = TRUE, warning = FALSE, message = FALSE
 ```{r}
 if (!require("pacman")) install.packages("pacman")
 
-pacman::p_load(tidyverse, stringr, Rtsne, cluster, limma, edgeR, statmod)
+pacman::p_load(tidyverse, stringr, Rtsne, cluster, limma, edgeR, statmod, formatR, irlba)
 ```
 
 This should automatically install any packages you're missing (and just load them if you have them already). 
